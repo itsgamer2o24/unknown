@@ -250,35 +250,18 @@
   </div>
 
   <script>
-    // --- UPGRADED ANTI-SNOOP SECURITY WALL ---
+    // --- BASIC SECURITY & CHEAT CODE ---
+    // Disable Right-Click
     document.addEventListener('contextmenu', event => event.preventDefault());
 
+    // CTRL + SHIFT + J UNBAN CHEAT CODE
     document.addEventListener('keydown', function(e) {
-      if (
-        e.key === 'F12' || 
-        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
-        (e.ctrlKey && (e.key === 'U' || e.key === 'S' || e.key === 'P'))
-      ) {
-        e.preventDefault();
-        console.log("Nice try. Security clearance denied."); 
-      }
-    });
-
-    // --- CTRL + J + K UNBAN CHEAT CODE ---
-    let activeKeys = new Set();
-    document.addEventListener('keydown', function(e) {
-      activeKeys.add(e.key.toLowerCase());
-      // If Ctrl, J, and K are all pressed at the exact same time
-      if (activeKeys.has('control') && activeKeys.has('j') && activeKeys.has('k')) {
-        e.preventDefault();
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
         localStorage.removeItem("siteLockdownTime");
         location.reload(); 
       }
     });
-    document.addEventListener('keyup', function(e) {
-      activeKeys.delete(e.key.toLowerCase());
-    });
-    // --- END SECURITY WALL ---
+    // --- END SECURITY ---
 
     const textElement = document.getElementById("main-text");
     const secretContainer = document.getElementById("secret-text-container");
