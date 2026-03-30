@@ -177,7 +177,7 @@
       font-weight: 800 !important;
       font-size: 1.5rem !important;
       letter-spacing: 2px;
-      cursor: pointer; /* Hint that it can be clicked for the backdoor */
+      cursor: pointer; 
     }
     #lockdown-timer {
       font-family: monospace;
@@ -287,7 +287,7 @@
     let activeLyricArray = [];
     let activeEndingText = "";
     let lockdownInterval;
-    let adminClicks = 0; // For the secret unban backdoor
+    let adminClicks = 0; 
 
     // --- LOCKDOWN SYSTEM LOGIC ---
     window.onload = () => {
@@ -299,7 +299,6 @@
         }
     };
 
-    // Modified to accept how many HOURS to ban the user
     function triggerLockdown(hours) {
         const durationMs = hours * 60 * 60 * 1000; 
         const endTime = Date.now() + durationMs;
@@ -332,12 +331,10 @@
             return;
         }
 
-        // Upgraded math to calculate Hours, Minutes, and Seconds
         const hours = Math.floor(remaining / (1000 * 60 * 60));
         const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
         
-        // Format to HH:MM:SS
         const formattedHr = hours.toString().padStart(2, '0');
         const formattedMin = minutes.toString().padStart(2, '0');
         const formattedSec = seconds.toString().padStart(2, '0');
@@ -350,20 +347,20 @@
       adminClicks++;
       if (adminClicks >= 5) {
         localStorage.removeItem("siteLockdownTime");
-        location.reload(); // Instantly break the ban and refresh
+        location.reload(); 
       }
     }
 
-    // --- LYRICS & CINEMATICS ---
+    // --- SCRAMBLED LYRICS (BASE64) ---
     const secretMessages = [
-        { text: "Mamamatay akong <span class='red-text'>nakangiti</span>...", duration: 3700 },
-        { text: "Kapag ikaw ang nasa aking tabi...", duration: 3700 },
-        { text: "Mabubuhay akong <span class='red-text'>nagsisisi</span>...", duration: 4100 },
-        { text: "Kapag isang araw hindi kita mapapangiti...", duration: 4800 },
-        { text: "Kalapastangan ang 'di ka ibigin...", duration: 3800 },
-        { text: "Kalokohan ang 'di ka isipin...", duration: 3800 },
-        { text: "Kung ang mundo ay biglang gugunawin...", duration: 4200 },
-        { text: "<span class='red-text'>Ikaw</span> ang una kong hahanapin...", duration: 5000 }
+        { text: atob("TWFtYW1hdGF5IGFrb25nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bmFrYW5naXRpPC9zcGFuPi4uLg=="), duration: 3700 },
+        { text: atob("S2FwYWcgaWthdyBhbmcgbmFzYSBha2luZyB0YWJpLi4u"), duration: 3700 },
+        { text: atob("TWFidWJ1aGF5IGFrb25nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bmFnc2lzaXNpPC9zcGFuPi4uLg=="), duration: 4100 },
+        { text: atob("S2FwYWcgaXNhbmcgYXJhdyBoaW5kaSBraXRhIG1hcGFwYW5naXRpLi4u"), duration: 4800 },
+        { text: atob("S2FsYXBhc3RhbmdhbiBhbmcgJ2RpIGthIGliaWdpbi4uLg=="), duration: 3800 },
+        { text: atob("S2Fsb2tvaGFuIGFuZyAnZGkga2EgaXNpcGluLi4u"), duration: 3800 },
+        { text: atob("S3VuZyBhbmcgbXVuZG8gYXkgYmlnbGFuZyBndWd1bmF3aW4uLi4="), duration: 4200 },
+        { text: atob("PHNwYW4gY2xhc3M9J3JlZC10ZXh0Jz5Ja2F3PC9zcGFuPiBhbmcgdW5hIGtvbmcgaGFoYW5hcGluLi4u"), duration: 5000 }
     ];
 
     function runAutomatedLyrics() {
@@ -434,10 +431,11 @@
       }
     }
 
-    // --- VERIFICATION ---
+    // --- ENCODED VERIFICATION ---
     function checkName() {
       const userInput = nameInput.value.trim().toLowerCase();
-      if (userInput === "kath") {
+      // "kath"
+      if (btoa(userInput) === "a2F0aA==") {
         promptModal.classList.remove("active");
         showMessage("You know what, dae mo dapat na araman yan HEHEHEHEHEH 😆😅");
         isUnlocked = true; 
@@ -447,23 +445,25 @@
         setTimeout(() => {
             nameInput.classList.remove("error-shake");
             promptModal.classList.remove("active");
-            triggerLockdown(1); // 1 HOUR BAN for normal prompt
+            triggerLockdown(1); 
         }, 400);
       }
     }
 
     function checkKath() {
       const userInput = kathInput.value.trim().toLowerCase();
-      if (userInput === "cathylyn nacario") {
+      // "cathylyn nacario"
+      if (btoa(userInput) === "Y2F0aHlseW4gbmFjYXJpbw==") {
         kathModal.classList.remove("active");
-        jecName.innerText = "CATHYLYN NACARIO";
+        // "CATHYLYN NACARIO"
+        jecName.innerText = atob("Q0FUSFlMWU4gTkFDQVJJTw==");
         triggerSecretFinale();
       } else {
         kathInput.classList.add("error-shake");
         setTimeout(() => {
             kathInput.classList.remove("error-shake");
             kathModal.classList.remove("active");
-            triggerLockdown(5); // 5 HOUR BAN for secret prompt
+            triggerLockdown(5); 
         }, 400);
       }
     }
@@ -476,7 +476,8 @@
 
     function triggerSecretFinale() {
       activeLyricArray = secretMessages;
-      activeEndingText = "<span class='red-text'>Pwede tayo nalang pls...</span>"; 
+      // "Pwede tayo nalang pls..." encoded to hide it
+      activeEndingText = atob("PHNwYW4gY2xhc3M9J3JlZC10ZXh0Jz5Qd2VkZSB0YXlvIG5hbGFuZyBwbHMuLi48L3NwYW4+"); 
       startCinematicMode(secretMusic, 181); 
     }
 
