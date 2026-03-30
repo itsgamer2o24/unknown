@@ -250,18 +250,37 @@
   </div>
 
   <script>
-    // --- BASIC SECURITY & CHEAT CODE ---
-    // Disable Right-Click
+    // --- AGGRESSIVE ANTI-SNOOP SECURITY WALL ---
+    // 1. Disable Right-Click
     document.addEventListener('contextmenu', event => event.preventDefault());
 
-    // CTRL + SHIFT + J UNBAN CHEAT CODE
     document.addEventListener('keydown', function(e) {
+      // 2. Block F12
+      if (e.key === 'F12') {
+        e.preventDefault();
+        return;
+      }
+      
+      // 3. Block Ctrl + U (View Source), Ctrl + S (Save), Ctrl + P (Print)
+      if (e.ctrlKey && (e.key.toLowerCase() === 'u' || e.key.toLowerCase() === 's' || e.key.toLowerCase() === 'p')) {
+        e.preventDefault();
+        return;
+      }
+
+      // 4. Block Ctrl + Shift + I and Ctrl + Shift + C (Developer Tools)
+      if (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'c')) {
+        e.preventDefault();
+        return;
+      }
+
+      // 5. THE SECRET ADMIN UNBAN (Ctrl + Shift + J)
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
+        // We purposely do NOT block this one so you can use it!
         localStorage.removeItem("siteLockdownTime");
         location.reload(); 
       }
     });
-    // --- END SECURITY ---
+    // --- END SECURITY WALL ---
 
     const textElement = document.getElementById("main-text");
     const secretContainer = document.getElementById("secret-text-container");
