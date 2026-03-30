@@ -54,7 +54,7 @@
     h1:active { transform: scale(0.95); }
     h1.disabled { cursor: not-allowed; opacity: 0.3; filter: grayscale(100%); }
 
-    /* Hidden Kath Button (Mobile Friendly 30x30px) */
+    /* Hidden Kath Button */
     #secret-kath-btn {
       position: fixed;
       bottom: 15px; 
@@ -66,7 +66,6 @@
       cursor: pointer;
       border-radius: 50%;
       display: none; 
-      /* Prevents blue/gray highlight block on mobile tap */
       -webkit-tap-highlight-color: transparent;
       outline: none;
     }
@@ -112,8 +111,6 @@
     }
     
     button:hover { background: var(--accent-hover); transform: translateY(-1px); }
-    
-    /* Makes buttons satisfyingly clicky */
     button:active { transform: scale(0.95); background: #4a54aa; }
 
     /* Security Shake Animation */
@@ -168,6 +165,26 @@
     @keyframes blurFadeOut { 0% { opacity: 1; filter: blur(0px); } 100% { opacity: 0; filter: blur(20px); } }
     .plot-twist-fade-in { animation: simpleFadeIn 5s ease-in-out forwards; }
     @keyframes simpleFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+
+    /* Lockdown Warning Specific UI */
+    .lockdown-box {
+      border-color: #ff4d4d !important;
+      box-shadow: 0 0 40px rgba(255, 77, 77, 0.3) !important;
+      background: rgba(30, 10, 10, 0.8) !important;
+    }
+    .lockdown-title {
+      color: #ff4d4d !important;
+      font-weight: 800 !important;
+      font-size: 1.5rem !important;
+      letter-spacing: 2px;
+    }
+    #lockdown-timer {
+      font-family: monospace;
+      font-size: 1.5rem;
+      color: white;
+      margin-top: 20px;
+      font-weight: bold;
+    }
 
     /* Mobile Fixes */
     @media (max-width: 600px) {
@@ -232,6 +249,14 @@
     </div>
   </div>
 
+  <div id="lockdown-screen" class="modal-overlay">
+    <div class="modal-box lockdown-box">
+      <p class="lockdown-title">SYSTEM LOCKED</p>
+      <div class="subtext" style="color: #ffcccc;">Invalid Data Detected.<br>IP address logged and restricted.</div>
+      <p id="lockdown-timer">60:00</p>
+    </div>
+  </div>
+
   <script>
     const textElement = document.getElementById("main-text");
     const secretContainer = document.getElementById("secret-text-container");
@@ -241,6 +266,7 @@
     const zoomWrapper = document.getElementById('zoom-wrapper');
     const voidText = document.getElementById('void-text');
     const jecName = document.getElementById('jec-name');
+    
     const introModal = document.getElementById("intro-modal");
     const promptModal = document.getElementById("prompt-modal");
     const kathModal = document.getElementById("kath-modal");
@@ -248,6 +274,9 @@
     const messageText = document.getElementById("message-text");
     const nameInput = document.getElementById("user-input");
     const kathInput = document.getElementById("kath-input");
+    
+    const lockdownScreen = document.getElementById("lockdown-screen");
+    const lockdownTimer = document.getElementById("lockdown-timer");
 
     let isUnlocked = false; 
     let clickCount = 0;     
@@ -255,7 +284,66 @@
     let currentStep = 0;
     let activeLyricArray = [];
     let activeEndingText = "";
+    let lockdownInterval;
 
+    // --- LOCKDOWN SYSTEM LOGIC ---
+    const LOCKOUT_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+    // Check if they are already locked out when the page loads
+    window.onload = () => {
+        const lockoutEndTime = localStorage.getItem("siteLockdownTime");
+        if (lockoutEndTime && Date.now() < parseInt(lockoutEndTime)) {
+            enforceLockdown(parseInt(lockoutEndTime));
+        } else if (lockoutEndTime) {
+            // Time expired, clear the lock
+            localStorage.removeItem("siteLockdownTime");
+        }
+    };
+
+    function triggerLockdown() {
+        const endTime = Date.now() + LOCKOUT_DURATION;
+        localStorage.setItem("siteLockdownTime", endTime);
+        enforceLockdown(endTime);
+    }
+
+    function enforceLockdown(endTime) {
+        // Hide all other UI immediately
+        introModal.classList.remove("active");
+        promptModal.classList.remove("active");
+        textElement.style.display = "none";
+        secretKathBtn.style.display = "none";
+        
+        // Show scary red screen
+        lockdownScreen.classList.add("active");
+
+        // Start countdown timer
+        updateTimerDisplay(endTime);
+        lockdownInterval = setInterval(() => {
+            updateTimerDisplay(endTime);
+        }, 1000);
+    }
+
+    function updateTimerDisplay(endTime) {
+        const remaining = endTime - Date.now();
+        
+        if (remaining <= 0) {
+            clearInterval(lockdownInterval);
+            localStorage.removeItem("siteLockdownTime");
+            location.reload(); // Refresh the page to unlock
+            return;
+        }
+
+        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+        
+        // Format to look like 59:09 instead of 59:9
+        const formattedMin = minutes.toString().padStart(2, '0');
+        const formattedSec = seconds.toString().padStart(2, '0');
+        
+        lockdownTimer.innerText = `${formattedMin}:${formattedSec}`;
+    }
+
+    // --- LYRICS & CINEMATICS ---
     const secretMessages = [
         { text: "Mamamatay akong <span class='red-text'>nakangiti</span>...", duration: 3700 },
         { text: "Kapag ikaw ang nasa aking tabi...", duration: 3700 },
@@ -302,18 +390,13 @@
     }
 
     function closeIntro() {
-      // Browser prime: Muted play to unlock audio context
-      bgMusic.muted = true;
-      bgMusic.play().then(() => {
-          bgMusic.pause();
-          bgMusic.muted = false;
-      }).catch(e => console.log("Audio prime failed:", e));
+      // Safety Check: Do not close intro if they are locked out!
+      if(lockdownScreen.classList.contains("active")) return;
 
+      bgMusic.muted = true;
+      bgMusic.play().then(() => { bgMusic.pause(); bgMusic.muted = false; }).catch(e => console.log(e));
       secretMusic.muted = true;
-      secretMusic.play().then(() => {
-          secretMusic.pause();
-          secretMusic.muted = false;
-      }).catch(e => console.log("Secret audio prime failed:", e));
+      secretMusic.play().then(() => { secretMusic.pause(); secretMusic.muted = false; }).catch(e => console.log(e));
 
       introModal.classList.remove("active");
       setTimeout(() => { textElement.style.display = "block"; }, 300);
@@ -341,6 +424,7 @@
       }
     }
 
+    // --- VERIFICATION WITH LOCKDOWN ---
     function checkName() {
       const userInput = nameInput.value.trim().toLowerCase();
       if (userInput === "kath") {
@@ -349,13 +433,12 @@
         isUnlocked = true; 
         secretKathBtn.style.display = "block";
       } else {
-        // Triggers the red shake animation
+        // WRONG NAME - TRIGGER LOCKDOWN!
         nameInput.classList.add("error-shake");
         setTimeout(() => {
             nameInput.classList.remove("error-shake");
             promptModal.classList.remove("active");
-            showMessage("Invalid Name HAHAHAHAH");
-            textElement.classList.add("disabled");
+            triggerLockdown(); // Instantly ban them for 1 hour
         }, 400);
       }
     }
@@ -367,7 +450,6 @@
         jecName.innerText = "CATHYLYN NACARIO";
         triggerSecretFinale();
       } else {
-        // Triggers the red shake animation
         kathInput.classList.add("error-shake");
         setTimeout(() => {
             kathInput.classList.remove("error-shake");
@@ -405,11 +487,10 @@
             else clearInterval(fIn);
           }, 50);
       }).catch(err => {
-          console.error("Playback failed. Please click the screen.", err);
+          console.error("Playback failed.", err);
           showMessage("Error playing music. Try again!");
       });
 
-      // Crucial: Wait for audio to actually play before starting visuals
       audioPlayer.addEventListener('playing', function() {
         jecName.classList.add('name-fade-in');
         setTimeout(() => {
