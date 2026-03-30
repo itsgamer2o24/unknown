@@ -2,13 +2,6 @@
 
 This is a customized, interactive, dual-path cinematic web project. It features background audio synchronization, dynamic CSS animations, hidden menus, and a strict "lockdown" security system for incorrect password attempts.
 
-## ✨ Features
-* **Dual-Path Storytelling:** A "Normal" path and a highly classified "Secret" path.
-* **Cinematic Audio Sync:** Lyrics are timed perfectly to the millisecond with background music.
-* **Security Lockdown System:** Incorrect passwords trigger a 1-hour or 5-hour localized "ban" using `localStorage`, complete with a terrifying red timer screen.
-* **Secret Admin Backdoor:** A hidden bypass to instantly remove the ban.
-* **Obfuscated Source Code:** Passwords and secret lyrics are hidden using Base64 encoding so visitors cannot read them by inspecting the GitHub code.
-
 ---
 
 ## 🚀 How to Setup & Host (Free via GitHub Pages)
@@ -34,7 +27,7 @@ You can do this right in your browser!
 1. Open a new tab in Chrome, right-click anywhere, and click **Inspect** (or press `F12`).
 2. Click the **Console** tab at the top.
 3. Type `btoa("your secret text")` and press **Enter**.
-   * *Example:* `btoa("kath")` outputs `"a2F0aA=="`
+   * *Example:* `btoa("your name")` outputs `"eW91ciBuYW11"`
 4. Copy the scrambled code.
 
 ### Where to change the passwords in `index.html`:
@@ -43,5 +36,5 @@ Scroll down to the JavaScript section near the bottom of the file.
 **For the first login prompt:**
 Find `function checkName()`. Replace the scrambled code with your new lowercase encoded password.
 ```javascript
-// Example: "kath"
-if (btoa(userInput) === "a2F0aA==") {
+// Example: "your name"
+if (btoa(userInput) === "eW91ciBuYW11") {
