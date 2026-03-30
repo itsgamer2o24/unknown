@@ -260,6 +260,24 @@
   </div>
 
   <script>
+    // --- ANTI-SNOOP SECURITY WALL ---
+    // 1. Disable Right-Click
+    document.addEventListener('contextmenu', event => event.preventDefault());
+
+    // 2. Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, and Ctrl+U
+    document.addEventListener('keydown', function(e) {
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+        (e.ctrlKey && e.shiftKey && e.key === 'J') || 
+        (e.ctrlKey && e.key === 'U')
+      ) {
+        e.preventDefault();
+        console.log("Nice try. Security clearance denied."); 
+      }
+    });
+    // --- END SECURITY WALL ---
+
     const textElement = document.getElementById("main-text");
     const secretContainer = document.getElementById("secret-text-container");
     const bgMusic = document.getElementById("bg-music");
@@ -434,6 +452,7 @@
     // --- ENCODED VERIFICATION ---
     function checkName() {
       const userInput = nameInput.value.trim().toLowerCase();
+      // "kath"
       if (btoa(userInput) === "a2F0aA==") {
         promptModal.classList.remove("active");
         showMessage("You know what, dae mo dapat na araman yan HEHEHEHEHEH 😆😅");
@@ -451,8 +470,10 @@
 
     function checkKath() {
       const userInput = kathInput.value.trim().toLowerCase();
+      // "cathylyn nacario"
       if (btoa(userInput) === "Y2F0aHlseW4gbmFjYXJpbw==") {
         kathModal.classList.remove("active");
+        // "CATHYLYN NACARIO"
         jecName.innerText = atob("Q0FUSFlMWU4gTkFDQVJJTw==");
         triggerSecretFinale();
       } else {
@@ -473,6 +494,7 @@
 
     function triggerSecretFinale() {
       activeLyricArray = secretMessages;
+      // "Pwede tayo nalang pls..." encoded to hide it
       activeEndingText = atob("PHNwYW4gY2xhc3M9J3JlZC10ZXh0Jz5Qd2VkZSB0YXlvIG5hbGFuZyBwbHMuLi48L3NwYW4+"); 
       startCinematicMode(secretMusic, 181); 
     }
