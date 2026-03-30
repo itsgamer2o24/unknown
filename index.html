@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meron na ba ako?</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✌️</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap');
+    :root {
+      --bg-color: #0a0a0c;
+      --surface-color: rgba(20, 20, 25, 0.7);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --text-primary: #ededed;
+      --text-secondary: #a0a0ab;
+      --accent-color: #5e6ad2; 
+      --accent-hover: #737df0;
+    }
+    body {
+      background: var(--bg-color);
+      background-image: radial-gradient(circle at 50% 0%, #1f1f2e 0%, transparent 70%);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      text-align: center;
+      cursor: pointer;
+      z-index: 1;
+      padding: 20px 40px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #a0a0ab 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: none; 
+    }
+    h1:hover { transform: scale(1.02) translateY(-2px); text-shadow: 0 10px 30px rgba(255, 255, 255, 0.1); }
+    h1:active { transform: scale(0.95); }
+    h1.disabled { cursor: not-allowed; opacity: 0.3; filter: grayscale(100%); }
+    #secret-kath-btn {
+      position: fixed;
+      bottom: 15px; 
+      right: 15px;  
+      width: 30px;  
+      height: 30px; 
+      background: transparent; 
+      z-index: 9999;
+      cursor: pointer;
+      border-radius: 50%;
+      display: none; 
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000; opacity: 0; pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: var(--surface-color); border: 1px solid var(--border-color);
+      padding: 40px; border-radius: 24px; text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      max-width: 420px; width: 90%;
+      transform: scale(0.95) translateY(10px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+    .modal-box p { font-size: 1.1rem; font-weight: 500; margin-bottom: 24px; color: var(--text-primary); line-height: 1.5; }
+    .modal-box .subtext { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; margin-top: -16px; }
+    input[type="text"] {
+      width: 100%; box-sizing: border-box; padding: 14px 16px; margin-bottom: 24px;
+      background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color);
+      border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 1rem;
+      color: var(--text-primary); outline: none; transition: all 0.2s ease;
+      text-align: center;
+    }
+    button {
+      background: var(--accent-color); color: white; border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 32px; font-size: 1rem; border-radius: 12px; cursor: pointer;
+      font-weight: 600; transition: all 0.2s ease; width: 100%;
+    }
+    button:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    #secret-text-container {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: #050505; display: none; justify-content: center; align-items: center;
+      z-index: 9999; opacity: 0; transition: opacity 1s ease; overflow: hidden; 
+    }
+    #secret-text-container::before {
+      content: ''; position: absolute; top: 50%; left: 50%; width: 120vw; height: 120vw;
+      transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(120, 10, 10, 0.5) 0%, transparent 70%);
+      animation: redPulse 6s ease-in-out infinite alternate;
+    }
+    @keyframes redPulse { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.4; } 100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } }
+    #void-overlay { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 1; }
+    #zoom-wrapper { width: 100%; display: flex; justify-content: center; align-items: center; }
+    #void-text { font-size: 3rem; font-weight: 800; text-align: center; width: 90%; opacity: 0; line-height: 1.3; color: white; display: inline-block; }
+    .red-text { color: #ff4d4d !important; text-shadow: 0 0 15px rgba(255, 77, 77, 0.6); }
+    #jec-name {
+      position: absolute; bottom: 25%; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,0.7); opacity: 0; font-size: 1.2rem; font-weight: 300; letter-spacing: 2px; text-align: center; width: 100%;
+    }
+    .name-fade-in { animation: jecFade 1s ease forwards; }
+    @keyframes jecFade { 0% { opacity: 0; } 100% { opacity: 1; } }
+    .zoom-layer { animation: continuousZoom 15s linear forwards; }
+    .relapse-entry { animation: blurFadeIn 1s ease-out forwards; }
+    .relapse-exit { animation: blurFadeOut 0.5s ease-in forwards; }
+    .relapse-exit-final { animation: blurFadeOut 1s ease-in forwards; }
+    @keyframes blurFadeIn { 0% { opacity: 0; filter: blur(15px); } 100% { opacity: 1; filter: blur(0px); } }
+    @keyframes continuousZoom { 0% { transform: scale(1); } 100% { transform: scale(1.5); } }
+    @keyframes blurFadeOut { 0% { opacity: 1; filter: blur(0px); } 100% { opacity: 0; filter: blur(20px); } }
+    .plot-twist-fade-in { animation: simpleFadeIn 5s ease-in-out forwards; }
+    @keyframes simpleFadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+    @media (max-width: 600px) {
+      h1 { font-size: 2.2rem; padding: 15px 20px; }
+      #void-text { font-size: 1.8rem; }
+      .modal-box { padding: 30px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="bg-music" preload="auto">
+    <source src="ikawlang.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="secret-music" preload="auto">
+    <source src="kalapastangan.mp3" type="audio/mpeg">
+  </audio>
+
+  <h1 id="main-text" onclick="handleInteraction()">Wala pa po, sorry. ✌️</h1>
+  
+  <div id="secret-kath-btn" onclick="openKathMenu()"></div>
+
+  <div id="secret-text-container">
+    <div id="void-overlay">
+        <div id="zoom-wrapper">
+            <div id="void-text"></div>
+        </div>
+        <div id="jec-name"></div>
+    </div>
+  </div>
+
+  <div id="intro-modal" class="modal-overlay active">
+    <div class="modal-box">
+      <p>Meron na ba ako? <br>Ang sabi ng survey ay...</p>
+      <button onclick="closeIntro()">Continue</button>
+    </div>
+  </div>
+
+  <div id="prompt-modal" class="modal-overlay">
+    <div class="modal-box">
+      <p>Authentication Required</p>
+      <div class="subtext">Enter Name:</div>
+      <input type="text" id="user-input" placeholder="Enter name..." autocomplete="off">
+      <button onclick="checkName()">Verify Identity</button>
+    </div>
+  </div>
+
+  <div id="kath-modal" class="modal-overlay">
+    <div class="modal-box">
+      <p>Hidden Sub-Routine Found</p>
+      <div class="subtext">What is full name for kath?</div>
+      <input type="text" id="kath-input" placeholder="Type full name..." autocomplete="off">
+      <button onclick="checkKath()">Execute</button>
+    </div>
+  </div>
+
+  <div id="message-modal" class="modal-overlay">
+    <div class="modal-box">
+      <p id="message-text"></p>
+      <button onclick="closeMessage()">Acknowledge</button>
+    </div>
+  </div>
+
+  <script>
+    const textElement = document.getElementById("main-text");
+    const secretContainer = document.getElementById("secret-text-container");
+    const bgMusic = document.getElementById("bg-music");
+    const secretMusic = document.getElementById("secret-music");
+    const secretKathBtn = document.getElementById("secret-kath-btn");
+    const zoomWrapper = document.getElementById('zoom-wrapper');
+    const voidText = document.getElementById('void-text');
+    const jecName = document.getElementById('jec-name');
+    const introModal = document.getElementById("intro-modal");
+    const promptModal = document.getElementById("prompt-modal");
+    const kathModal = document.getElementById("kath-modal");
+    const messageModal = document.getElementById("message-modal");
+    const messageText = document.getElementById("message-text");
+    const nameInput = document.getElementById("user-input");
+    const kathInput = document.getElementById("kath-input");
+
+    let isUnlocked = false; 
+    let clickCount = 0;     
+    let secretClickCount = 0;
+    let currentStep = 0;
+    let activeLyricArray = [];
+    let activeEndingText = "";
+
+    const secretMessages = [
+        { text: "Mamamatay akong <span class='red-text'>nakangiti</span>...", duration: 3700 },
+        { text: "Kapag ikaw ang nasa aking tabi...", duration: 3700 },
+        { text: "Mabubuhay akong <span class='red-text'>nagsisisi</span>...", duration: 4100 },
+        { text: "Kapag isang araw hindi kita mapapangiti...", duration: 4800 },
+        { text: "Kalapastangan ang 'di ka ibigin...", duration: 3800 },
+        { text: "Kalokohan ang 'di ka isipin...", duration: 3800 },
+        { text: "Kung ang mundo ay biglang gugunawin...", duration: 4200 },
+        { text: "<span class='red-text'>Ikaw</span> ang una kong hahanapin...", duration: 5000 }
+    ];
+
+    function runAutomatedLyrics() {
+      if (currentStep < activeLyricArray.length) {
+        renderMessage(activeLyricArray[currentStep].text);
+        setTimeout(() => {
+          const isFinal = currentStep === activeLyricArray.length - 1;
+          voidText.classList.remove('relapse-entry');
+          voidText.classList.add(isFinal ? 'relapse-exit-final' : 'relapse-exit');
+          setTimeout(() => {
+            currentStep++;
+            if (currentStep < activeLyricArray.length) runAutomatedLyrics();
+            else showPlotTwist();
+          }, isFinal ? 1000 : 500); 
+        }, activeLyricArray[currentStep].duration);
+      }
+    }
+
+    function renderMessage(content) {
+      zoomWrapper.classList.remove('zoom-layer');
+      void zoomWrapper.offsetWidth; 
+      zoomWrapper.classList.add('zoom-layer');
+      voidText.classList.remove('relapse-exit', 'relapse-entry', 'relapse-exit-final', 'plot-twist-fade-in');
+      voidText.innerHTML = content;
+      void voidText.offsetWidth; 
+      voidText.classList.add('relapse-entry');
+    }
+
+    function showPlotTwist() {
+      zoomWrapper.classList.remove('zoom-layer');
+      voidText.classList.remove('relapse-exit', 'relapse-entry', 'relapse-exit-final');
+      voidText.innerHTML = activeEndingText;
+      void voidText.offsetWidth;
+      voidText.classList.add('plot-twist-fade-in'); 
+    }
+
+    function closeIntro() {
+      // Browser prime: Muted play to unlock audio context
+      bgMusic.muted = true;
+      bgMusic.play().then(() => {
+          bgMusic.pause();
+          bgMusic.muted = false;
+      }).catch(e => console.log("Audio prime failed:", e));
+
+      secretMusic.muted = true;
+      secretMusic.play().then(() => {
+          secretMusic.pause();
+          secretMusic.muted = false;
+      }).catch(e => console.log("Secret audio prime failed:", e));
+
+      introModal.classList.remove("active");
+      setTimeout(() => { textElement.style.display = "block"; }, 300);
+    }
+
+    function handleInteraction() {
+      if (!isUnlocked) {
+        nameInput.value = ""; 
+        promptModal.classList.add("active");
+        setTimeout(() => nameInput.focus(), 100);
+      } else {
+        clickCount++;
+        if (clickCount >= 3) triggerNormalFinale();
+      }
+    }
+
+    function openKathMenu() {
+      if (!isUnlocked) return; 
+      secretClickCount++;
+      if (secretClickCount >= 3) {
+        kathInput.value = "";
+        kathModal.classList.add("active");
+        setTimeout(() => kathInput.focus(), 100);
+        secretClickCount = 0;
+      }
+    }
+
+    function checkName() {
+      promptModal.classList.remove("active");
+      const userInput = nameInput.value.trim().toLowerCase();
+      if (userInput === "kath") {
+        showMessage("You know what, dae mo dapat na araman yan HEHEHEHEHEH 😆😅");
+        isUnlocked = true; 
+        secretKathBtn.style.display = "block";
+      } else {
+        showMessage("Invalid Name HAHAHAHAH");
+        textElement.classList.add("disabled");
+      }
+    }
+
+    function checkKath() {
+      kathModal.classList.remove("active");
+      if (kathInput.value.trim().toLowerCase() === "cathylyn nacario") {
+        jecName.innerText = "CATHYLYN NACARIO";
+        triggerSecretFinale();
+      } else {
+        showMessage("Invalid Data. System Locked.");
+      }
+    }
+
+    function triggerNormalFinale() {
+      activeLyricArray = []; 
+      activeEndingText = "<span class='red-text'>Dai pa kami, Sorry i waze your time HAHHAHAHHAH</span>"; 
+      startCinematicMode(bgMusic, 41.5);
+    }
+
+    function triggerSecretFinale() {
+      activeLyricArray = secretMessages;
+      activeEndingText = "<span class='red-text'>Pwede tayo nalang pls...</span>"; 
+      startCinematicMode(secretMusic, 181); 
+    }
+
+    function startCinematicMode(audioPlayer, startTime) {
+      secretContainer.style.display = "flex";
+      setTimeout(() => { secretContainer.style.opacity = "1"; }, 50);
+      textElement.style.display = "none";
+      secretKathBtn.style.display = "none"; 
+      
+      audioPlayer.currentTime = startTime;
+      audioPlayer.volume = 0;
+      
+      audioPlayer.play().then(() => {
+          let vol = 0;
+          const fIn = setInterval(() => {
+            if (vol < 1) { vol += 0.05; audioPlayer.volume = Math.min(vol, 1); }
+            else clearInterval(fIn);
+          }, 50);
+      }).catch(err => {
+          console.error("Playback failed. Please click the screen.", err);
+          // Fallback: If it fails, show a button to manually play
+          showMessage("Error playing music. Try again!");
+      });
+
+      jecName.classList.add('name-fade-in');
+      setTimeout(() => {
+        if(activeLyricArray.length > 0) runAutomatedLyrics();
+        else showPlotTwist();
+      }, 800); 
+    }
+
+    function showMessage(text) { messageText.innerText = text; messageModal.classList.add("active"); }
+    function closeMessage() { messageModal.classList.remove("active"); }
+    nameInput.onkeypress = (e) => { if (e.key === "Enter") checkName(); };
+    kathInput.onkeypress = (e) => { if (e.key === "Enter") checkKath(); };
+  </script>
+</body>
+</html>
