@@ -250,34 +250,41 @@
   </div>
 
   <script>
-    // --- AGGRESSIVE ANTI-SNOOP SECURITY WALL ---
-    // 1. Disable Right-Click
+    // --- ULTIMATE ANTI-SNOOP SECURITY WALL ---
+    
+    // 1. Disable Right-Click completely
     document.addEventListener('contextmenu', event => event.preventDefault());
 
+    // 2. Block Keyboard Shortcuts
     document.addEventListener('keydown', function(e) {
-      // 2. Block F12
-      if (e.key === 'F12') {
+      
+      // ALLOW THE SECRET ADMIN UNBAN (Ctrl + Shift + J)
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
+        localStorage.removeItem("siteLockdownTime");
+        location.reload(); 
+        return; // Stops here, allows the refresh
+      }
+
+      // Block F12 (Using both key name and key code for maximum compatibility)
+      if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
         return;
       }
       
-      // 3. Block Ctrl + U (View Source), Ctrl + S (Save), Ctrl + P (Print)
-      if (e.ctrlKey && (e.key.toLowerCase() === 'u' || e.key.toLowerCase() === 's' || e.key.toLowerCase() === 'p')) {
-        e.preventDefault();
-        return;
-      }
-
-      // 4. Block Ctrl + Shift + I and Ctrl + Shift + C (Developer Tools)
-      if (e.ctrlKey && e.shiftKey && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'c')) {
-        e.preventDefault();
-        return;
-      }
-
-      // 5. THE SECRET ADMIN UNBAN (Ctrl + Shift + J)
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
-        // We purposely do NOT block this one so you can use it!
-        localStorage.removeItem("siteLockdownTime");
-        location.reload(); 
+      // Block Ctrl AND Mac Command key combos
+      if (e.ctrlKey || e.metaKey) {
+        const k = e.key.toLowerCase();
+        if (
+          k === 'u' || // Block View Source
+          k === 's' || // Block Save Page
+          k === 'p' || // Block Print Page
+          (e.shiftKey && k === 'i') || // Block Dev Tools
+          (e.shiftKey && k === 'c')    // Block Inspect Element
+        ) {
+          e.preventDefault();
+          console.log("Security clearance denied."); 
+          return;
+        }
       }
     });
     // --- END SECURITY WALL ---
