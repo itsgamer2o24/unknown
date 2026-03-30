@@ -250,36 +250,30 @@
   </div>
 
   <script>
-    // --- ULTIMATE ANTI-SNOOP SECURITY WALL ---
     
-    // 1. Disable Right-Click completely
     document.addEventListener('contextmenu', event => event.preventDefault());
 
-    // 2. Block Keyboard Shortcuts
     document.addEventListener('keydown', function(e) {
       
-      // ALLOW THE SECRET ADMIN UNBAN (Ctrl + Shift + J)
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
         localStorage.removeItem("siteLockdownTime");
         location.reload(); 
-        return; // Stops here, allows the refresh
+        return; 
       }
 
-      // Block F12 (Using both key name and key code for maximum compatibility)
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
         return;
       }
       
-      // Block Ctrl AND Mac Command key combos
       if (e.ctrlKey || e.metaKey) {
         const k = e.key.toLowerCase();
         if (
-          k === 'u' || // Block View Source
-          k === 's' || // Block Save Page
-          k === 'p' || // Block Print Page
-          (e.shiftKey && k === 'i') || // Block Dev Tools
-          (e.shiftKey && k === 'c')    // Block Inspect Element
+          k === 'u' || 
+          k === 's' || 
+          k === 'p' || 
+          (e.shiftKey && k === 'i') ||
+          (e.shiftKey && k === 'c')    
         ) {
           e.preventDefault();
           console.log("Security clearance denied."); 
@@ -370,7 +364,6 @@
         lockdownTimer.innerText = `${formattedHr}:${formattedMin}:${formattedSec}`;
     }
 
-    // --- SCRAMBLED LYRICS (BASE64) ---
     const secretMessages = [
         { text: atob("TWFtYW1hdGF5IGFrb25nIDxzcGFuIGNsYXNzPSdyZWQtdGV4dCc+bmFrYW5naXRpPC9zcGFuPi4uLg=="), duration: 3700 },
         { text: atob("S2FwYWcgaWthdyBhbmcgbmFzYSBha2luZyB0YWJpLi4u"), duration: 3700 },
