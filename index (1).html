@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calacutayo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background-color: #000;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        #calc-container {
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 45px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.9);
+            width: 350px;
+            transition: opacity 1s ease; 
+            cursor: default;
+        }
+
+        #display {
+            width: 100%;
+            height: 90px;
+            color: #fff;
+            font-size: 2.2rem;
+            text-align: right;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-break: break-all;
+            overflow: hidden;
+        }
+
+        .button-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        button {
+            border: none;
+            height: 65px;
+            width: 65px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.05);
+        }
+
+        button:active { transform: scale(0.9); }
+        .oval { grid-column: span 2; width: 145px; border-radius: 50px; }
+        .op { background: #333; color: #fff; }
+        .func { background: #444; color: #fff; }
+
+        #void-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: black;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .no-click { pointer-events: none; }
+
+        #zoom-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #void-text {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            width: 90%;
+            opacity: 0;
+            line-height: 1.3;
+            color: white;
+            display: inline-block;
+        }
+
+        #matt-name {
+            position: absolute;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            opacity: 0; 
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .name-fade-in { animation: mattFade 1s ease forwards; }
+
+        @keyframes mattFade {
+            0% { opacity: 0; }
+            100% { opacity: 0.5; }
+        }
+
+        .red-text { color: #ff4d4d !important; }
+
+        .zoom-layer { animation: continuousZoom 15s linear forwards; }
+        .relapse-entry { animation: blurFadeIn 1s ease-out forwards; }
+        .relapse-exit { animation: blurFadeOut 0.5s ease-in forwards; }
+        .relapse-exit-final { animation: blurFadeOut 1s ease-in forwards; }
+
+        @keyframes blurFadeIn {
+            0% { opacity: 0; filter: blur(15px); }
+            100% { opacity: 1; filter: blur(0px); }
+        }
+
+        @keyframes continuousZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.5); }
+        }
+
+        @keyframes blurFadeOut {
+            0% { opacity: 1; filter: blur(0px); }
+            100% { opacity: 0; filter: blur(20px); }
+        }
+
+        .plot-twist-fade-in { animation: simpleFadeIn 5s ease-in-out forwards; }
+
+        @keyframes simpleFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" preload="auto">
+        <source src="https://cdn.discordapp.com/attachments/1485271573169700984/1485271690580725821/December_Avenue_-_Bulong_OFFICIAL_MUSIC_VIDEO.mp3?ex=69c7314e&is=69c5dfce&hm=b679f786f678c947f6dde096dbc3579c934ced0db13b667a30e12cfd5f559e23&" type="audio/mpeg">
+    </audio>
+
+    <div id="calc-container">
+        <div id="display">0</div>
+        <div class="button-layout">
+            <button class="func" onclick="clearDisplay(event)">AC</button>
+            <button class="func" onclick="appendNum('(', event)">(</button>
+            <button class="func" onclick="appendNum(')', event)">)</button>
+            <button class="op" onclick="appendNum('/', event)">÷</button>
+            
+            <button onclick="appendNum('7', event)">7</button>
+            <button onclick="appendNum('8', event)">8</button>
+            <button onclick="appendNum('9', event)">9</button>
+            <button class="op" onclick="appendNum('*', event)">×</button>
+            
+            <button onclick="appendNum('4', event)">4</button>
+            <button onclick="appendNum('5', event)">5</button>
+            <button onclick="appendNum('6', event)">6</button>
+            <button class="op" onclick="appendNum('-', event)">-</button>
+            
+            <button onclick="appendNum('1', event)">1</button>
+            <button onclick="appendNum('2', event)">2</button>
+            <button onclick="appendNum('3', event)">3</button>
+            <button class="op" onclick="appendNum('+', event)">+</button>
+            
+            <button class="oval" onclick="appendNum('0', event)">0</button>
+            <button onclick="appendNum('.', event)">.</button>
+            <button class="op" onclick="startSequence(event)">=</button>
+        </div>
+    </div>
+
+    <div id="void-overlay">
+        <div id="zoom-wrapper">
+            <div id="void-text"></div>
+        </div>
+        <div id="matt-name">MATT</div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const calcContainer = document.getElementById('calc-container');
+        const overlay = document.getElementById('void-overlay');
+        const textField = document.getElementById('void-text');
+        const zoomWrapper = document.getElementById('zoom-wrapper');
+        const mattName = document.getElementById('matt-name');
+        const bgMusic = document.getElementById('bg-music');
+
+        let appState = "CALC"; 
+        let currentStep = 0;
+        let isTransitioning = false;
+
+        const messages = [
+            { text: "Ako'y alipin ng pag-ibig mo", duration: 6000 },
+            { text: "Handang ibigin ang <span class='red-text'>isang tulad mo</span>", duration: 6500 },
+            { text: "Hanggat ang <span class='red-text'>Puso</span> mo'y", duration: 2600 },
+            { text: "<span class='red-text'>Sa akin lang</span>", duration: 1400 },
+            { text: "Hindi kana", duration: 1400 },
+            { text: "<span class='red-text'>Malilinlang</span>", duration: 1400 },
+            { text: "Ikaw ang <span class='red-text'>ilaw</span> sa <span class='red-text'>dilim</span>", duration: 2700 },
+            { text: "<span class='red-text'>At ang liwanag</span>", duration: 1700 },
+            { text: "<span class='red-text'>Ng mga bituin</span>", duration: 5800 }
+        ];
+
+        function appendNum(char, event) {
+            event.stopPropagation();
+            // If currently showing Error or the sequence starter text, reset everything
+            if (display.innerText === "Error" || display.innerText === "Nagkamali ba ako?") {
+                display.innerText = "";
+                display.style.color = "#fff";
+            }
+            if (display.innerText === '0' && char !== '.') {
+                display.innerText = char;
+            } else {
+                display.innerText += char;
+            }
+        }
+
+        function clearDisplay(event) {
+            event.stopPropagation();
+            display.innerText = '0';
+            display.style.color = "#fff";
+            appState = "CALC";
+        }
+
+        function startSequence(event) {
+            event.stopPropagation();
+            if (isTransitioning) return;
+
+            // FIX: If it says Error, don't let it start. User must type something new.
+            if (display.innerText === "Error") return;
+
+            let userInput = display.innerText;
+            let isValid = false;
+
+            // --- STRICT MATH VALIDATION ---
+            try {
+                // Check if user is trying to evaluate an empty string or just 0
+                if (!userInput || userInput === "0") throw new Error("Empty");
+                
+                // eval() will throw an error for things like "1++" or "5*"
+                eval(userInput);
+                
+                // One more check: make sure the LAST character isn't an operator
+                // This catches cases eval() might skip depending on browser
+                if (['+', '-', '*', '/'].includes(userInput.slice(-1))) {
+                    throw new Error("Trailing operator");
+                }
+
+                isValid = true; 
+            } catch (e) {
+                isValid = false;
+            }
+
+            if (!isValid) {
+                // Only show error and stop if math is broken
+                display.innerText = "Error";
+                display.style.color = "#ff4d4d";
+                return; 
+            }
+
+            // --- SUCCESS STATE ---
+            display.innerText = "Nagkamali ba ako?";
+            display.style.color = "#ff4d4d";
+            isTransitioning = true;
+
+            // Music Fade-In logic
+            bgMusic.currentTime = 183;
+            bgMusic.volume = 0;
+            bgMusic.play();
+
+            let vol = 0;
+            const fadeInInterval = setInterval(() => {
+                if (vol < 1) {
+                    vol += 0.05; 
+                    bgMusic.volume = Math.min(vol, 1);
+                } else {
+                    clearInterval(fadeInInterval);
+                }
+            }, 50); 
+
+            // Fade out the calculator
+            calcContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                calcContainer.style.display = 'none';
+                overlay.style.display = 'flex';
+                overlay.classList.add('no-click');
+                mattName.classList.add('name-fade-in');
+                
+                setTimeout(() => {
+                    appState = "RELAPSING";
+                    runAutomatedLyrics();
+                }, 3000);
+            }, 1000); 
+        }
+
+        function runAutomatedLyrics() {
+            if (currentStep < messages.length) {
+                renderMessage(messages[currentStep].text);
+                
+                setTimeout(() => {
+                    const isFinal = currentStep === messages.length - 1;
+                    textField.classList.remove('relapse-entry');
+                    textField.classList.add(isFinal ? 'relapse-exit-final' : 'relapse-exit');
+
+                    const transitionDelay = isFinal ? 1000 : 500;
+
+                    setTimeout(() => {
+                        currentStep++;
+                        if (currentStep < messages.length) {
+                            runAutomatedLyrics();
+                        } else {
+                            showPlotTwist();
+                        }
+                    }, transitionDelay); 
+
+                }, messages[currentStep].duration);
+            }
+        }
+
+        function renderMessage(content) {
+            zoomWrapper.classList.remove('zoom-layer');
+            void zoomWrapper.offsetWidth; 
+            zoomWrapper.classList.add('zoom-layer');
+
+            textField.classList.remove('relapse-exit', 'relapse-entry', 'relapse-exit-final', 'plot-twist-fade-in');
+            textField.innerHTML = content;
+            void textField.offsetWidth; 
+            textField.classList.add('relapse-entry');
+        }
+
+        function showPlotTwist() {
+            zoomWrapper.classList.remove('zoom-layer');
+            textField.classList.remove('relapse-exit', 'relapse-entry', 'relapse-exit-final');
+            textField.innerHTML = "<span class='red-text'>Aray mo Pakak!</span>";
+            void textField.offsetWidth;
+            textField.classList.add('plot-twist-fade-in'); 
+        }
+    </script>
+</body>
+</html>
