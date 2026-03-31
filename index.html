@@ -458,13 +458,10 @@
       }
     }
 
-    // UPDATED checkKath for Cathylyn L. Nacario
     function checkKath() {
       const userInput = kathInput.value.trim().toLowerCase();
-      // Y2F0aHlseW4gbC4gbmFjYXJpbw== is base64 for "cathylyn l. nacario"
       if (btoa(userInput) === "Y2F0aHlseW4gbC4gbmFjYXJpbw==") { 
         kathModal.classList.remove("active");
-        // Q2F0aHlseW4gTC4gTmFjYXJpbw== is base64 for "Cathylyn L. Nacario"
         jecName.innerText = atob("Q2F0aHlseW4gTC4gTmFjYXJpbw==");
         triggerSecretFinale();
       } else {
