@@ -228,7 +228,7 @@
   <div id="kath-modal" class="modal-overlay">
     <div class="modal-box">
       <p>Hidden Sub-Routine Found</p>
-      <div class="subtext">Who is the full name of Kath?</div>
+      <div class="subtext">What is the full name for Kath?</div>
       <input type="text" id="kath-input" placeholder="Type full name..." autocomplete="off">
       <button onclick="checkKath()">Execute</button>
     </div>
@@ -250,33 +250,22 @@
   </div>
 
   <script>
-    
     document.addEventListener('contextmenu', event => event.preventDefault());
 
     document.addEventListener('keydown', function(e) {
-      
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
         localStorage.removeItem("siteLockdownTime");
         location.reload(); 
         return; 
       }
-
       if (e.key === 'F12' || e.keyCode === 123) {
         e.preventDefault();
         return;
       }
-      
       if (e.ctrlKey || e.metaKey) {
         const k = e.key.toLowerCase();
-        if (
-          k === 'u' || 
-          k === 's' || 
-          k === 'p' || 
-          (e.shiftKey && k === 'i') ||
-          (e.shiftKey && k === 'c')    
-        ) {
+        if (k === 'u' || k === 's' || k === 'p' || (e.shiftKey && k === 'i') || (e.shiftKey && k === 'c')) {
           e.preventDefault();
-          console.log("Security clearance denied."); 
           return;
         }
       }
@@ -332,34 +321,23 @@
         kathModal.classList.remove("active");
         textElement.style.display = "none";
         secretKathBtn.style.display = "none";
-        
         lockdownScreen.classList.add("active");
-
         updateTimerDisplay(endTime);
-        lockdownInterval = setInterval(() => {
-            updateTimerDisplay(endTime);
-        }, 1000);
+        lockdownInterval = setInterval(() => { updateTimerDisplay(endTime); }, 1000);
     }
 
     function updateTimerDisplay(endTime) {
         const remaining = endTime - Date.now();
-        
         if (remaining <= 0) {
             clearInterval(lockdownInterval);
             localStorage.removeItem("siteLockdownTime");
             location.reload(); 
             return;
         }
-
         const hours = Math.floor(remaining / (1000 * 60 * 60));
         const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-        
-        const formattedHr = hours.toString().padStart(2, '0');
-        const formattedMin = minutes.toString().padStart(2, '0');
-        const formattedSec = seconds.toString().padStart(2, '0');
-        
-        lockdownTimer.innerText = `${formattedHr}:${formattedMin}:${formattedSec}`;
+        lockdownTimer.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
     const secretMessages = [
@@ -409,12 +387,10 @@
 
     function closeIntro() {
       if(lockdownScreen.classList.contains("active")) return;
-
       bgMusic.muted = true;
       bgMusic.play().then(() => { bgMusic.pause(); bgMusic.muted = false; }).catch(e => console.log(e));
       secretMusic.muted = true;
       secretMusic.play().then(() => { secretMusic.pause(); secretMusic.muted = false; }).catch(e => console.log(e));
-
       introModal.classList.remove("active");
       setTimeout(() => { textElement.style.display = "block"; }, 300);
     }
@@ -460,9 +436,9 @@
 
     function checkKath() {
       const userInput = kathInput.value.trim().toLowerCase();
-      if (btoa(userInput) === "Y2F0aHlseW4gbC4gbmFjYXJpbw==") { 
+      if (btoa(userInput) === "Y2F0aHlseW4gbHVjYXMgbmFjYXJpbw==") {
         kathModal.classList.remove("active");
-        jecName.innerText = atob("Q2F0aHlseW4gTC4gTmFjYXJpbw==");
+        jecName.innerText = atob("Q2F0aHlseW4gTHVjYXMgTmFjYXJpbw==");
         triggerSecretFinale();
       } else {
         kathInput.classList.add("error-shake");
@@ -476,7 +452,7 @@
 
     function triggerNormalFinale() {
       activeLyricArray = []; 
-      activeEndingText = "<span class='red-text'>Dai pa kami, Sorry i waze your time HAHHAHAHHAH</span>"; 
+      activeEndingText = "<span class='red-text'>Dai pa kami, Sorry i waste your time HAHHAHAHHAH</span>"; 
       startCinematicMode(bgMusic, 41.5);
     }
 
@@ -491,20 +467,15 @@
       setTimeout(() => { secretContainer.style.opacity = "1"; }, 50);
       textElement.style.display = "none";
       secretKathBtn.style.display = "none"; 
-      
       audioPlayer.currentTime = startTime;
       audioPlayer.volume = 0;
-      
       audioPlayer.play().then(() => {
           let vol = 0;
           const fIn = setInterval(() => {
             if (vol < 1) { vol += 0.05; audioPlayer.volume = Math.min(vol, 1); }
             else clearInterval(fIn);
           }, 50);
-      }).catch(err => {
-          console.error("Playback failed.", err);
-          showMessage("Error playing music. Try again!");
-      });
+      }).catch(err => { console.error(err); });
 
       audioPlayer.addEventListener('playing', function() {
         jecName.classList.add('name-fade-in');
