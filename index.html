@@ -228,7 +228,7 @@
   <div id="kath-modal" class="modal-overlay">
     <div class="modal-box">
       <p>Hidden Sub-Routine Found</p>
-      <div class="subtext">What is full name for kath?</div>
+      <div class="subtext">Who is the full name of Kath?</div>
       <input type="text" id="kath-input" placeholder="Type full name..." autocomplete="off">
       <button onclick="checkKath()">Execute</button>
     </div>
@@ -281,7 +281,6 @@
         }
       }
     });
-    // --- END SECURITY WALL ---
 
     const textElement = document.getElementById("main-text");
     const secretContainer = document.getElementById("secret-text-container");
@@ -304,14 +303,13 @@
     const lockdownTimer = document.getElementById("lockdown-timer");
 
     let isUnlocked = false; 
-    let clickCount = 0;     
+    let clickCount = 0;      
     let secretClickCount = 0;
     let currentStep = 0;
     let activeLyricArray = [];
     let activeEndingText = "";
     let lockdownInterval;
 
-    // --- LOCKDOWN SYSTEM LOGIC ---
     window.onload = () => {
         const lockoutEndTime = localStorage.getItem("siteLockdownTime");
         if (lockoutEndTime && Date.now() < parseInt(lockoutEndTime)) {
@@ -443,7 +441,6 @@
       }
     }
 
-    // --- ENCODED VERIFICATION ---
     function checkName() {
       const userInput = nameInput.value.trim().toLowerCase();
       if (btoa(userInput) === "a2F0aA==") {
@@ -461,11 +458,14 @@
       }
     }
 
+    // UPDATED checkKath for Cathylyn L. Nacario
     function checkKath() {
       const userInput = kathInput.value.trim().toLowerCase();
-      if (btoa(userInput) === "Q2F0aHlseW4gTC4gTmFjYXJpbw==") {
+      // Y2F0aHlseW4gbC4gbmFjYXJpbw== is base64 for "cathylyn l. nacario"
+      if (btoa(userInput) === "Y2F0aHlseW4gbC4gbmFjYXJpbw==") { 
         kathModal.classList.remove("active");
-        jecName.innerText = atob("Q0FUSFlMWU4gTC4gTkFDQVJJTw==");
+        // Q2F0aHlseW4gTC4gTmFjYXJpbw== is base64 for "Cathylyn L. Nacario"
+        jecName.innerText = atob("Q2F0aHlseW4gTC4gTmFjYXJpbw==");
         triggerSecretFinale();
       } else {
         kathInput.classList.add("error-shake");
